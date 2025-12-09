@@ -1,3 +1,4 @@
+model-type: vq
 model:
   target: transcoder.models.bsqvit.VITBSQModel
   params:

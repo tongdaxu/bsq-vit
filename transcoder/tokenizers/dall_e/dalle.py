@@ -9,8 +9,8 @@ class Dalle(nn.Module):
     def __init__(self, model_rootpath=None):
         super().__init__()
         if model_rootpath is None:
-            encoder_path = 'https://cdn.openai.com/dall-e/encoder.pkl'
-            decoder_path = 'https://cdn.openai.com/dall-e/decoder.pkl'
+            encoder_path = "https://cdn.openai.com/dall-e/encoder.pkl"
+            decoder_path = "https://cdn.openai.com/dall-e/decoder.pkl"
         else:
             encoder_path = f"{model_rootpath}/encoder.pkl"
             decoder_path = f"{model_rootpath}/decoder.pkl"

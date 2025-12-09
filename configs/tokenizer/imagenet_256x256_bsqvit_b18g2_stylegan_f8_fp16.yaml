@@ -1,3 +1,4 @@
+model-type: vq
 model:
   target: transcoder.models.bsqvit.VITBSQModel
   params:
@@ -71,10 +72,10 @@ evaluation:
   interpolation: 'lanczos'
   fid:
     dims: 2048
-    num_samples: 50_000
-    # num_samples: 5_000   # for coco2017val
-    groundtruth_npz: 'imagenet_val_256x256_lanczos.npz'
-    # groundtruth_npz: 'coco_val_256x256_lanczos.npz'   # for coco2017val
+    # num_samples: 50_000
+    # groundtruth_npz: 'imagenet_val_256x256_lanczos.npz'
+    num_samples: 5_000   # for coco2017val
+    groundtruth_npz: 'coco_val_256x256_lanczos.npz'   # for coco2017val
 wandb:
   project: transcoder
   run: imagenet_128x128_bsqvit_b18g18_stylegan_f8_fp16

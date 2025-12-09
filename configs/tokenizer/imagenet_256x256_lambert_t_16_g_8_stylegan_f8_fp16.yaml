@@ -1,0 +1,78 @@
+model-type: gaussian
+model:
+  target: transcoder.models.bsqvit.VITLambertModel
+  # grad_checkpointing: True
+  params:
+    z_dim: 16
+    kl: 11.091
+    group: 8
+    logit_laplace: False
+    vitconfig:
+      image_size: 256
+      patch_size: 8
+      width: 768
+      layers: 12
+      heads: 12
+      mlp_ratio: 4
+      drop_rate: 0.
+loss:
+  target: transcoder.losses.vqperceptual.VQLPIPSWithDiscriminator
+  params:
+    disc_type: 'stylegan'
+    disc_input_size: 256
+    disc_loss: 'vanilla'
+    disc_reg_freq: 16
+    disc_conditional: False
+    disc_in_channels: 3
+    disc_start: 0
+    disc_weight: 0.1
+    codebook_weight: 0
+    codebook_rampup_steps: -1
+    codebook_rampup_multiplier: 3.0
+    perceptual_weight: 0.1
+    use_adaptive_disc_weight: False
+
+data:
+  image_size: 256
+  batch_size: 32
+  num_workers: 8
+  train:
+    target: transcoder.data.loader.SimpleDataset
+    params:
+      root: '/workspace/cogview_dev/xutd/xu/datasets/ILSVRC/Data/CLS-LOC/train.txt'
+  val:
+    target: transcoder.data.loader.SimpleDataset
+    params:
+      root: '/workspace/cogview_dev/xutd/xu/datasets/ILSVRC/Data/CLS-LOC/val.txt'
+      # root: '/workspace/cogview_dev/xutd/xu/datasets/coco_2017_val.txt'   # for coco2017val
+  zero_mean: True
+
+optimizer:
+  disable_amp: False
+  use_bf16: True
+  base_lr: 4e-7
+  max_iter: 1_000_000
+  lr_scheduler_config:
+      target: transcoder.optim.schedulers.LambdaWarmUpCosineScheduler
+      params:
+        warm_up_steps: 5_000
+        max_decay_steps: 1_000_000
+        lr_start: 0.1
+        lr_max: 1.0
+        lr_min: 0.5
+  target: torch.optim.AdamW
+  params:
+    weight_decay: 1e-4
+    betas: [0.9, 0.99]
+    eps: 1e-8
+evaluation:
+  interpolation: 'lanczos'
+  fid:
+    dims: 2048
+    num_samples: 50_000
+    # num_samples: 5_000   # for coco2017val
+    groundtruth_npz: 'imagenet_val_256x256_lanczos.npz'
+    # groundtruth_npz: 'coco_val_256x256_lanczos.npz'   # for coco2017val
+wandb:
+  project: transcoder
+  run: imagenet_256x256_lambert_t_16_g_16_stylegan_f8_fp16

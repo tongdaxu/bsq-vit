@@ -10,15 +10,29 @@ import scripts.main_image_tokenizer as main_image_tokenizer
 def parse_args():
     parser = main_image_tokenizer.get_args_parser()
     parser = argparse.ArgumentParser("Submitit for VQ-GAN training", parents=[parser])
-    parser.add_argument("--ngpus", default=8, type=int, help="Number of gpus to request on each node")
-    parser.add_argument("--nodes", default=1, type=int, help="Number of nodes to request")
-    parser.add_argument("--timeout", default=10080, type=int, help="Duration of the job")
-    parser.add_argument("--job_dir", default="", type=str, help="Job dir. Leave empty for automatic.")
+    parser.add_argument(
+        "--ngpus", default=8, type=int, help="Number of gpus to request on each node"
+    )
+    parser.add_argument(
+        "--nodes", default=1, type=int, help="Number of nodes to request"
+    )
+    parser.add_argument(
+        "--timeout", default=10080, type=int, help="Duration of the job"
+    )
+    parser.add_argument(
+        "--job_dir", default="", type=str, help="Job dir. Leave empty for automatic."
+    )
 
-    parser.add_argument("--partition", default="rtxa", type=str, help="Partition where to submit")
-    parser.add_argument("--nodelist", default=None, type=str, help='specify node list')
-    parser.add_argument('--comment', default="", type=str,
-                        help='Comment to pass to scheduler, e.g. priority message')
+    parser.add_argument(
+        "--partition", default="rtxa", type=str, help="Partition where to submit"
+    )
+    parser.add_argument("--nodelist", default=None, type=str, help="specify node list")
+    parser.add_argument(
+        "--comment",
+        default="",
+        type=str,
+        help="Comment to pass to scheduler, e.g. priority message",
+    )
     return parser.parse_args()
 
 
@@ -63,7 +77,9 @@ class Trainer(object):
         from pathlib import Path
 
         job_env = submitit.JobEnvironment()
-        self.args.output_dir = Path(str(self.args.output_dir).replace("%j", str(job_env.job_id)))
+        self.args.output_dir = Path(
+            str(self.args.output_dir).replace("%j", str(job_env.job_id))
+        )
         self.args.gpu = job_env.local_rank
         self.args.rank = job_env.global_rank
         self.args.world_size = job_env.num_tasks
@@ -85,12 +101,11 @@ def main():
     partition = args.partition
     kwargs = {}
     if args.comment:
-        kwargs['slurm_comment'] = args.comment
+        kwargs["slurm_comment"] = args.comment
 
-
-    slurm_additional_parameters = {'gres-flags': 'enforce-binding'}
+    slurm_additional_parameters = {"gres-flags": "enforce-binding"}
     if args.nodelist is not None:
-        slurm_additional_parameters['nodelist'] = args.nodelist
+        slurm_additional_parameters["nodelist"] = args.nodelist
 
     executor.update_parameters(
         mem_gb=90 * num_gpus_per_node,
@@ -103,7 +118,7 @@ def main():
         slurm_partition=partition,
         slurm_signal_delay_s=120,
         slurm_additional_parameters=slurm_additional_parameters,
-        **kwargs
+        **kwargs,
     )
 
     executor.update_parameters(name="image_tokenizer")

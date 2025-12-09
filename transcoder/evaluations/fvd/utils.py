@@ -13,12 +13,17 @@ import urllib.request
 from typing import Any
 
 
-def open_url(url: str, num_attempts: int = 10, verbose: bool = True, return_filename: bool = False) -> Any:
+def open_url(
+    url: str,
+    num_attempts: int = 10,
+    verbose: bool = True,
+    return_filename: bool = False,
+) -> Any:
     """Download the given URL and return a binary-mode file object to access the data."""
     assert num_attempts >= 1
 
     # Doesn't look like an URL scheme so interpret it as a local filename.
-    if not re.match('^[a-z]+://', url):
+    if not re.match("^[a-z]+://", url):
         return url if return_filename else open(url, "rb")
 
     # Handle file URLs.  This code handles unusual file:// patterns that
@@ -35,9 +40,9 @@ def open_url(url: str, num_attempts: int = 10, verbose: bool = True, return_file
     # Some internet resources suggest using urllib.request.url2pathname() but
     # but that converts forward slashes to backslashes and this causes
     # its own set of problems.
-    if url.startswith('file://'):
+    if url.startswith("file://"):
         filename = urllib.parse.urlparse(url).path
-        if re.match(r'^/[a-zA-Z]:', filename):
+        if re.match(r"^/[a-zA-Z]:", filename):
             filename = filename[1:]
         return filename if return_filename else open(filename, "rb")
 
@@ -59,14 +64,23 @@ def open_url(url: str, num_attempts: int = 10, verbose: bool = True, return_file
                     if len(res.content) < 8192:
                         content_str = res.content.decode("utf-8")
                         if "download_warning" in res.headers.get("Set-Cookie", ""):
-                            links = [html.unescape(link) for link in content_str.split('"') if "export=download" in link]
+                            links = [
+                                html.unescape(link)
+                                for link in content_str.split('"')
+                                if "export=download" in link
+                            ]
                             if len(links) == 1:
                                 url = requests.compat.urljoin(url, links[0])
                                 raise IOError("Google Drive virus checker nag")
                         if "Google Drive - Quota exceeded" in content_str:
-                            raise IOError("Google Drive download quota exceeded -- please try again later")
+                            raise IOError(
+                                "Google Drive download quota exceeded -- please try again later"
+                            )
 
-                    match = re.search(r'filename="([^"]*)"', res.headers.get("Content-Disposition", ""))
+                    match = re.search(
+                        r'filename="([^"]*)"',
+                        res.headers.get("Content-Disposition", ""),
+                    )
                     url_name = match[1] if match else url
                     url_data = res.content
                     if verbose:

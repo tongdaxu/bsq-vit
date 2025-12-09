@@ -12,6 +12,7 @@ class SDXLTokenizer(nn.Module):
         output = self.model(x)
         return output.sample
 
+
 class SD2Tokenizer(nn.Module):
     def __init__(self):
         super().__init__()

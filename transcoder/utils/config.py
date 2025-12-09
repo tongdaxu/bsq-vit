@@ -24,4 +24,6 @@ def instantiate_optimizer_from_config(config, params):
 def instantiate_dataset_from_config(config, transform):
     if not "target" in config:
         raise KeyError("Expected key `target` to instantiate.")
-    return get_obj_from_str(config["target"])(transform=transform, **config.get("params", dict()))
+    return get_obj_from_str(config["target"])(
+        transform=transform, **config.get("params", dict())
+    )
